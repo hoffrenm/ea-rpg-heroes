@@ -9,4 +9,8 @@ public class Weapon extends Item {
         this.type = type;
         this.weaponDamage = weaponDamage;
     }
+
+    public WeaponType getType() {
+        return type;
+    }
 }
