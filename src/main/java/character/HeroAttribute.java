@@ -1,4 +1,4 @@
-package hoffrenm;
+package character;
 
 import java.util.Objects;
 

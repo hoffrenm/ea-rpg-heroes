@@ -1,4 +1,4 @@
-package hoffrenm;
+package equipment;
 
 public enum Slot {
     Weapon,

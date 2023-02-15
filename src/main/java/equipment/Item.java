@@ -1,4 +1,4 @@
-package hoffrenm;
+package equipment;
 
 abstract public class Item {
     private final String name;

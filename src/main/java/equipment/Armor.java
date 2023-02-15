@@ -1,4 +1,6 @@
-package hoffrenm;
+package equipment;
+
+import character.HeroAttribute;
 
 import java.util.Objects;
 
