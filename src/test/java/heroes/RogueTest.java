@@ -116,7 +116,7 @@ class RogueTest {
     @Test
     void equipWeapon_validTypeInvalidLevel_shouldThrowInvalidWeaponException() {
         Weapon highLvlDagger = new Weapon("Regular dagger", 9, WeaponType.Dagger, 3);
-        String errorMessage = "Hero cannot equip that type of weapon";
+        String errorMessage = "Your level is too low to wield that weapon.";
 
         InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> rogue.equip(highLvlDagger));
 
@@ -137,7 +137,7 @@ class RogueTest {
     @Test
     void equipWeapon_invalidType_shouldThrowInvalidWeaponException() {
         Weapon staff = new Weapon("Magic staff", 1, WeaponType.Staff, 2);
-        String errorMessage = "Hero cannot equip that type of weapon";
+        String errorMessage = "Rogue cannot equip weapon of type " + staff.getType() + ".";
 
         InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> rogue.equip(staff));
 
@@ -181,7 +181,7 @@ class RogueTest {
     void equipArmor_invalidLevelValidType_shouldThrowInvalidArmorException() {
         HeroAttribute armorAttributes = new HeroAttribute(1, 1, 1);
         Armor pants = new Armor("Leather pants", 5, Slot.Legs, ArmorType.Mail, armorAttributes);
-        String errorMessage = "Hero cannot equip that type of armor";
+        String errorMessage = "Your level is too low to equip that armor.";
 
         InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> rogue.equip(pants));
 
@@ -192,7 +192,7 @@ class RogueTest {
     void equipArmor_invalidTypeValidLevel_shouldThrowInvalidArmorException() {
         HeroAttribute armorAttributes = new HeroAttribute(10, 2, 0);
         Armor helmet = new Armor("Plate helmet", 1, Slot.Head, ArmorType.Plate, armorAttributes);
-        String errorMessage = "Hero cannot equip that type of armor";
+        String errorMessage = "Rogue cannot equip armor type of " + helmet.getType() + ".";
 
         InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> rogue.equip(helmet));
 
