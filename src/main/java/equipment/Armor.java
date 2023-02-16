@@ -22,17 +22,4 @@ public class Armor extends Item {
     public HeroAttribute getArmorAttributes() {
         return armorAttributes;
     }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Armor armor = (Armor) o;
-        return type == armor.type && armorAttributes.equals(armor.armorAttributes);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(type, armorAttributes);
-    }
 }

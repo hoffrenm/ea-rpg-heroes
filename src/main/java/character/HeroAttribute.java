@@ -13,9 +13,17 @@ public class HeroAttribute {
         this.intelligence = intelligence;
     }
 
-    public int getStrength() { return strength; }
-    public int getDexterity() { return dexterity; }
-    public int getIntelligence() { return intelligence; }
+    public int getStrength() {
+        return strength;
+    }
+
+    public int getDexterity() {
+        return dexterity;
+    }
+
+    public int getIntelligence() {
+        return intelligence;
+    }
 
     public void addAttributes(HeroAttribute attributes) {
         this.strength += attributes.getStrength();
@@ -29,10 +37,5 @@ public class HeroAttribute {
         if (o == null || getClass() != o.getClass()) return false;
         HeroAttribute that = (HeroAttribute) o;
         return strength == that.strength && dexterity == that.dexterity && intelligence == that.intelligence;
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(strength, dexterity, intelligence);
     }
 }
