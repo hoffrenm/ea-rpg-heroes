@@ -64,19 +64,27 @@ abstract public class Hero {
     }
 
     public void equip(Weapon weapon) throws InvalidWeaponException {
-        if (weapon.getRequiredLevel() > this.level || !this.validWeaponTypes.contains(weapon.getType())) {
-            throw new InvalidWeaponException("Hero cannot equip that type of weapon");
-        } else {
-            this.equipment.put(Slot.Weapon, weapon);
+        if (!this.validWeaponTypes.contains(weapon.getType())) {
+            throw new InvalidWeaponException(this.getClass().getSimpleName() + " cannot equip that type of weapon.");
         }
+
+        if (weapon.getRequiredLevel() > this.level) {
+            throw new InvalidWeaponException("Your level is too low to wield that weapon");
+        }
+
+        this.equipment.put(Slot.Weapon, weapon);
     }
 
     public void equip(Armor armor) throws InvalidArmorException {
-        if (armor.getRequiredLevel() > this.level || !this.validArmorTypes.contains(armor.getType())) {
-            throw new InvalidArmorException("Hero cannot equip that type of armor");
-        } else {
-            this.equipment.put(armor.getSlot(), armor);
+        if (!this.validArmorTypes.contains(armor.getType())) {
+            throw new InvalidArmorException(this.getClass().getSimpleName() + " cannot equip that type of armor.");
         }
+
+        if (armor.getRequiredLevel() > this.level) {
+            throw new InvalidArmorException("Your level is too low to equip that armor.");
+        }
+
+        this.equipment.put(armor.getSlot(), armor);
     }
 
     public HeroAttribute totalAttributes() {
