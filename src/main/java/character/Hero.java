@@ -19,7 +19,7 @@ abstract public class Hero {
     public Hero(String name) {
         this.name = name;
         this.level = 1;
-        this.equipment = new HashMap<Slot, Item>();
+        this.equipment = new HashMap<>();
 
         for (Slot slot : Slot.values()) {
             this.equipment.put(slot, null);
@@ -34,7 +34,7 @@ abstract public class Hero {
         return level;
     }
 
-    public void setLevelAttributes(HeroAttribute levelAttributes) {
+    protected void setLevelAttributes(HeroAttribute levelAttributes) {
         this.levelAttributes = levelAttributes;
     }
 
@@ -42,23 +42,19 @@ abstract public class Hero {
         return levelAttributes;
     }
 
-    public void setLevelUpAttributes(HeroAttribute levelUpAttributes) {
+    protected void setLevelUpAttributes(HeroAttribute levelUpAttributes) {
         this.levelUpAttributes = levelUpAttributes;
-    }
-
-    public HeroAttribute getLevelUpAttributes() {
-        return levelUpAttributes;
     }
 
     public Map<Slot, Item> getEquipment() {
         return equipment;
     }
 
-    public void setValidWeaponTypes(List<WeaponType> validWeaponTypes) {
+    protected void setValidWeaponTypes(List<WeaponType> validWeaponTypes) {
         this.validWeaponTypes = validWeaponTypes;
     }
 
-    public void setValidArmorTypes(List<ArmorType> validArmorTypes) {
+    protected void setValidArmorTypes(List<ArmorType> validArmorTypes) {
         this.validArmorTypes = validArmorTypes;
     }
 
@@ -84,7 +80,7 @@ abstract public class Hero {
     }
 
     public HeroAttribute totalAttributes() {
-        HeroAttribute totalAttributes = new HeroAttribute(0,0,0);
+        HeroAttribute totalAttributes = new HeroAttribute(0, 0, 0);
         totalAttributes.addAttributes(this.levelAttributes);
 
         for (Item item : this.equipment.values()) {
@@ -96,7 +92,19 @@ abstract public class Hero {
         return totalAttributes;
     }
 
-    abstract public int damage();
-    
-    void display() {}
+    abstract public double damage();
+
+    public String display() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("Name: ").append(this.getName()).append("\n")
+                .append("Class: ").append(this.getClass().getSimpleName()).append("\n")
+                .append("Level: ").append(this.getLevel()).append("\n")
+                .append("Strength: ").append(this.totalAttributes().getStrength()).append("\n")
+                .append("Dexterity: ").append(this.totalAttributes().getDexterity()).append("\n")
+                .append("Intelligence: ").append(this.totalAttributes().getIntelligence()).append("\n")
+                .append("Damage: ").append(this.damage());
+
+        return sb.toString();
+    }
 }
