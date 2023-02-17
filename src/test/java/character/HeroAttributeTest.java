@@ -45,4 +45,16 @@ class HeroAttributeTest {
 
         assertFalse(isNotSame);
     }
+
+    @Test
+    void addAttributes_firstOne_shouldHaveItsValuesIncreased() {
+        HeroAttribute heroAttr1 = new HeroAttribute(12, 1, 104);
+        HeroAttribute heroAttr2 = new HeroAttribute(84, 76, 3);
+        HeroAttribute total = new HeroAttribute(96, 77, 107);
+
+        heroAttr1.addAttributes(heroAttr2);
+        boolean isSame = heroAttr1.equals(total);
+
+        assertTrue(isSame);
+    }
 }
