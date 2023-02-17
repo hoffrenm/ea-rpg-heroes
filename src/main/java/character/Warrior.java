@@ -8,8 +8,17 @@ import equipment.WeaponType;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents Warrior class. Subclass of Hero.
+ */
 public class Warrior extends Hero {
 
+    /**
+     * Creates Warrior with given name. Warrior has distinct attribute composition that emphasizes strength.
+     * Warrior may use weapons of type Axe, Hammer, Sword and equip armors of type Mail and Plate.
+     *
+     * @param name name of warrior
+     */
     public Warrior(String name) {
         super(name);
 
@@ -25,6 +34,12 @@ public class Warrior extends Hero {
         this.setValidArmorTypes(validArmors);
     }
 
+    /**
+     * Represents damage that the warrior deals. Damage is modified by equipped weapon and
+     * attributes that armor provides. Strength attribute is used to calculate damage modifier.
+     *
+     * @return damage value
+     */
     public double damage() {
         Weapon equippedWeapon = (Weapon) this.getEquipment().get(Slot.Weapon);
         int baseDamage = equippedWeapon != null ? equippedWeapon.getWeaponDamage() : 1;

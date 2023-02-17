@@ -8,8 +8,17 @@ import equipment.WeaponType;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents Ranger class. Subclass of Hero.
+ */
 public class Ranger extends Hero {
 
+    /**
+     * Creates Ranger with given name. Ranger has distinct attribute composition that emphasizes Dexterity.
+     * Ranger may use weapons of type Bow and equip armors of type Leather and Mail.
+     *
+     * @param name name of ranger
+     */
     public Ranger(String name) {
         super(name);
 
@@ -25,6 +34,12 @@ public class Ranger extends Hero {
         this.setValidArmorTypes(validArmors);
     }
 
+    /**
+     * Represents damage that the ranger will deal. Damage is modified by equipped weapon and
+     * attributes that armor provides. Dexterity attribute is used to calculate damage modifier.
+     *
+     * @return damage value
+     */
     public double damage() {
         Weapon equippedWeapon = (Weapon) this.getEquipment().get(Slot.Weapon);
         int baseDamage = equippedWeapon != null ? equippedWeapon.getWeaponDamage() : 1;

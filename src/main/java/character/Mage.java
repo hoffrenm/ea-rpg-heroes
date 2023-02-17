@@ -8,8 +8,17 @@ import equipment.WeaponType;
 import java.util.Arrays;
 import java.util.List;
 
+/**
+ * Represents Mage class. Subclass of Hero.
+ */
 public class Mage extends Hero {
 
+    /**
+     * Creates Mage with given name. Mage has distinct attribute composition that emphasizes intelligence.
+     * Mage may use weapons of type Staff, Wand and equip armor of type Cloth.
+     *
+     * @param name name of mage
+     */
     public Mage(String name) {
         super(name);
 
@@ -25,6 +34,12 @@ public class Mage extends Hero {
         this.setValidArmorTypes(validArmors);
     }
 
+    /**
+     * Represents damage that the mage will deal. Damage is modified by equipped weapon and
+     * attributes that armor provides. Intelligence attribute is used to calculate damage modifier.
+     *
+     * @return damage value
+     */
     public double damage() {
         Weapon equippedWeapon = (Weapon) this.getEquipment().get(Slot.Weapon);
         int baseDamage = equippedWeapon != null ? equippedWeapon.getWeaponDamage() : 1;
