@@ -3,6 +3,7 @@ package character;
 import equipment.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.TestHelper;
 
 import java.util.Map;
 import java.util.Objects;
@@ -12,78 +13,81 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class WarriorTest {
 
-    private Hero warrior;
+    private Hero hero;
+    private final TestHelper helper = new TestHelper();
 
     @BeforeEach
     void setUp() {
-        warrior = new Warrior("Agnar");
+        hero = new Warrior("Agnar");
     }
 
     @Test
     void createWarrior_validName_shouldReturnSameName() {
-        warrior = new Warrior("Cadet");
+        hero = new Warrior("Cadet");
 
-        String name = warrior.getName();
+        String name = hero.getName();
 
         assertEquals("Cadet", name);
     }
 
     @Test
     void createWarrior_atBeginning_shouldStartAtLevelOne() {
-        int startingLevel = warrior.getLevel();
+        int startingLevel = hero.getLevel();
 
         assertEquals(1, startingLevel);
     }
 
     @Test
     void createWarrior_atBeginning_shouldHaveCorrectBaseAttributes() {
-        HeroAttribute attributes = warrior.getLevelAttributes();
-        HeroAttribute baseAttributes = new HeroAttribute(5, 2, 1);
+        HeroAttribute attributes = hero.getLevelAttributes();
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
 
-        assertEquals(baseAttributes, attributes);
+        assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void levelUp_byOneLevel_shouldIncreaseLevelByOne() {
-        warrior.levelUp();
+        hero.levelUp();
 
-        int level = warrior.getLevel();
+        int level = hero.getLevel();
 
         assertEquals(2, level);
     }
 
     @Test
     void levelUp_byFourLevelUps_shouldIncreaseLevelByFour() {
-        IntStream.range(0, 4).forEach((i) -> warrior.levelUp());
+        int levels = 4;
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
 
-        int level = warrior.getLevel();
+        int level = hero.getLevel();
 
-        assertEquals(5, level);
+        assertEquals(levels + 1, level);
     }
 
     @Test
     void levelUp_byOneLevelUp_shouldIncreaseLevelAttributesByOne() {
-        HeroAttribute expected = new HeroAttribute(8, 4, 2);
+        HeroAttribute expected = helper.getAttributesAfterLeveling(hero, 1);
 
-        warrior.levelUp();
-        HeroAttribute attributes = warrior.getLevelAttributes();
+        hero.levelUp();
+        HeroAttribute attributes = hero.getLevelAttributes();
 
         assertEquals(expected, attributes);
     }
 
     @Test
     void levelUp_byFourLevelUps_shouldIncreaseLevelAttributesFourTimes() {
-        HeroAttribute expected = new HeroAttribute(17, 10, 5);
+        int levels = 4;
+        HeroAttribute expected = helper.getAttributesAfterLeveling(hero, levels);
 
-        IntStream.range(0, 4).forEach((i) -> warrior.levelUp());
-        HeroAttribute attributes = warrior.getLevelAttributes();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        HeroAttribute attributes = hero.getLevelAttributes();
 
         assertEquals(expected, attributes);
     }
 
     @Test
     void equipment_atStart_shouldHaveNothingEquipped() {
-        Map<Slot, Item> items = warrior.getEquipment();
+        Map<Slot, Item> items = hero.getEquipment();
 
         boolean hasNoItems = items.values().stream().allMatch(Objects::isNull);
 
@@ -91,252 +95,269 @@ class WarriorTest {
     }
 
     @Test
-    void equipWeapon_validType_shouldBeAbleToEquip() throws InvalidWeaponException {
-        Weapon weapon = new Weapon("Regular hammer", 1, WeaponType.Hammer, 1);
+    void equipWeapon_validTypeHammer_shouldBeAbleToEquip() throws InvalidWeaponException {
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Hammer, 1);
+        hero.equip(weapon);
 
-        warrior.equip(weapon);
-        Item equippedItem = warrior.getEquipment().get(Slot.Weapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
         assertEquals(weapon, equippedItem);
     }
 
     @Test
-    void equipWeapon_validSword_shouldBeAbleToEquip() throws InvalidWeaponException {
-        Weapon dagger = new Weapon("Regular sword", 1, WeaponType.Sword, 2);
-        warrior.equip(dagger);
+    void equipWeapon_validTypeSword_shouldBeAbleToEquip() throws InvalidWeaponException {
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        hero.equip(weapon);
 
-        Item equippedItem = warrior.getEquipment().get(Slot.Weapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
-        assertEquals(dagger, equippedItem);
+        assertEquals(weapon, equippedItem);
+    }
+
+    @Test
+    void equipWeapon_validTypeAxe_shouldBeAbleToEquip() throws InvalidWeaponException {
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Axe, 1);
+        hero.equip(weapon);
+
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
+
+        assertEquals(weapon, equippedItem);
     }
 
     @Test
     void equipWeapon_validTypeInvalidLevel_shouldThrowInvalidWeaponException() {
-        Weapon invalidWeapon = new Weapon("Regular sword", 9, WeaponType.Sword, 3);
+        Weapon highLvlWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Axe, 10);
         String errorMessage = "Your level is too low to wield that weapon.";
 
-        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> warrior.equip(invalidWeapon));
+        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> hero.equip(highLvlWeapon));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipment_afterLevelingUp_shouldBeAbleToEquipHigherLevelItem() throws InvalidWeaponException {
-        Weapon validWeapon = new Weapon("Regular dagger", 7, WeaponType.Sword, 6);
-        IntStream.range(0, 10).forEach((i) -> warrior.levelUp());
+        int levels = 5;
+        Weapon highLvlWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Axe, levels);
+        IntStream.range(0, levels + 1).forEach((i) -> hero.levelUp());
 
-        warrior.equip(validWeapon);
-        Item equippedItem = warrior.getEquipment().get(Slot.Weapon);
+        hero.equip(highLvlWeapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
-        assertEquals(validWeapon, equippedItem);
+        assertEquals(highLvlWeapon, equippedItem);
     }
 
     @Test
     void equipWeapon_invalidType_shouldThrowInvalidWeaponException() {
-        Weapon staff = new Weapon("Magic staff", 1, WeaponType.Staff, 2);
-        String errorMessage = "Warrior cannot equip weapon of type " + staff.getType() + ".";
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Staff, 1);
+        String errorMessage = "Warrior cannot equip weapon of type " + weapon.getType() + ".";
 
-        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> warrior.equip(staff));
+        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> hero.equip(weapon));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
-    void equipArmor_validTypePlate_shouldBeAbleToEquip() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 5, 0);
-        Armor legs = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Plate, armorAttributes);
+    void equipArmor_validMailLegs_shouldBeAbleToEquip() throws InvalidArmorException {
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
 
-        warrior.equip(legs);
-        Item equippedItem = warrior.getEquipment().get(Slot.Legs);
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Legs);
 
-        assertEquals(legs, equippedItem);
+        assertEquals(armor, equippedItem);
     }
 
     @Test
-    void equipArmor_validTypeMail_shouldBeAbleToEquip() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(3, 3, 1);
-        Armor body = new Armor("Mail vest", 1, Slot.Body, ArmorType.Mail, armorAttributes);
+    void equipArmor_validMailBody_shouldBeAbleToEquip() throws InvalidArmorException {
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Mail, 1);
 
-        warrior.equip(body);
-        Item equippedItem = warrior.getEquipment().get(Slot.Body);
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Body);
 
-        assertEquals(body, equippedItem);
+        assertEquals(armor, equippedItem);
+    }
+
+    @Test
+    void equipArmor_validPlateHead_shouldBeAbleToEquip() throws InvalidArmorException {
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Plate, 1);
+
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Head);
+
+        assertEquals(armor, equippedItem);
     }
 
     @Test
     void equipArmor_invalidLevelValidType_shouldThrowInvalidArmorException() {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 1, 1);
-        Armor pants = new Armor("Chain-link pants", 5, Slot.Legs, ArmorType.Mail, armorAttributes);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Plate, 5);
         String errorMessage = "Your level is too low to equip that armor.";
 
-        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> warrior.equip(pants));
+        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> hero.equip(armor));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipArmor_invalidTypeValidLevel_shouldThrowInvalidArmorException() {
-        HeroAttribute armorAttributes = new HeroAttribute(10, 2, 0);
-        Armor hat = new Armor("Hat", 1, Slot.Head, ArmorType.Cloth, armorAttributes);
-        String errorMessage = "Warrior cannot equip armor type of " + hat.getType() + ".";
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Cloth, 1);
+        String errorMessage = "Warrior cannot equip armor type of " + armor.getType() + ".";
 
-        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> warrior.equip(hat));
+        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> hero.equip(armor));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipArmor_toSameSlot_shouldReplaceOldArmor() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 1, 1);
-        Armor old = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
-        Armor replacement = new Armor("Plate legs", 1, Slot.Legs, ArmorType.Plate, armorAttributes);
+        Armor old = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor replacement = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Plate, 1);
 
-        warrior.equip(old);
-        warrior.equip(replacement);
-        Item equippedItem = warrior.getEquipment().get(Slot.Legs);
+        hero.equip(old);
+        hero.equip(replacement);
+        Item equippedItem = hero.getEquipment().get(Slot.Legs);
 
         assertEquals(replacement, equippedItem);
     }
 
     @Test
     void totalAttributes_atBeginning_shouldEqualBaseAttributes() {
-        HeroAttribute expectedAttributes = new HeroAttribute(5, 2, 1);
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
 
-        HeroAttribute attributes = warrior.totalAttributes();
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_afterLevelingUpFiveTimes_shouldEqualTheirSum() {
-        HeroAttribute expectedAttributes = new HeroAttribute(20, 12, 6);
+        int levels = 5;
+        HeroAttribute expectedAttributes = helper.getAttributesAfterLeveling(hero, 5);
 
-        IntStream.range(0, 5).forEach((i) -> warrior.levelUp());
-        HeroAttribute attributes = warrior.totalAttributes();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withOneArmorEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(15, 12, 2);
-        HeroAttribute armorAttributes = new HeroAttribute(10, 10, 1);
-        Armor pants = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 1);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
 
-        warrior.equip(pants);
-        HeroAttribute attributes = warrior.totalAttributes();
+        hero.equip(armor);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withTwoArmorEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(25, 22, 21);
-        HeroAttribute armorAttributes = new HeroAttribute(10, 10, 10);
-        Armor pants = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
-        Armor vest = new Armor("Breastplate", 1, Slot.Body, ArmorType.Plate, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 2);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Mail, 1);
 
-        warrior.equip(pants);
-        warrior.equip(vest);
-        HeroAttribute attributes = warrior.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withAllSlotsEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(35, 32, 31);
-        HeroAttribute armorAttributes = new HeroAttribute(10, 10, 10);
-        Armor hat = new Armor("Leather hat", 1, Slot.Head, ArmorType.Mail, armorAttributes);
-        Armor vest = new Armor("Leather vest", 1, Slot.Body, ArmorType.Mail, armorAttributes);
-        Armor pants = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 3);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Mail, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor armor3 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Plate, 1);
 
-        warrior.equip(hat);
-        warrior.equip(vest);
-        warrior.equip(pants);
-        HeroAttribute attributes = warrior.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        hero.equip(armor3);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withReplacedArmor_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(25, 7, 1);
-        HeroAttribute armorAttributes = new HeroAttribute(3, 3, 3);
-        HeroAttribute newArmorAttributes = new HeroAttribute(20, 5, 0);
-        Armor vest = new Armor("Chain-link armor", 1, Slot.Body, ArmorType.Mail, armorAttributes);
-        Armor newVest = new Armor("Breastplate", 1, Slot.Body, ArmorType.Plate, newArmorAttributes);
+        HeroAttribute newArmorAttributes = new HeroAttribute(11, 22, 33);
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
+        expectedAttributes.addAttributes(newArmorAttributes);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Plate, 1);
+        Armor armor2 = new Armor("Replacement", 1, Slot.Body, ArmorType.Plate, newArmorAttributes);
 
-        warrior.equip(vest);
-        warrior.equip(newVest);
-        HeroAttribute attributes = warrior.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void damage_withoutWeaponOrArmor_shouldEqualBaseDamageModifiedByBaseAttributes() {
-        double damage = warrior.damage();
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, null);
+        double damage = hero.damage();
 
-        assertEquals(1.05, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeapon_shouldEqualWeaponDamageModifiedByBaseAttributes() throws InvalidWeaponException {
-        Weapon weapon = new Weapon("Woodcutting axe", 1, WeaponType.Axe, 15);
-        warrior.equip(weapon);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Hammer, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, weapon);
 
-        double damage = warrior.damage();
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        assertEquals(15.75, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeaponAndArmor_shouldEqualWeaponDamageModifiedByTheirAttributes() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(7, 22, 0);
-        Armor pants = new Armor("Chain-link pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
-        Weapon weapon = new Weapon("Sharp sword", 1, WeaponType.Sword, 27);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 1, weapon);
 
-        warrior.equip(pants);
-        warrior.equip(weapon);
-        double damage = warrior.damage();
+        hero.equip(armor);
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        assertEquals(30.24, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeaponAndAllArmor_shouldEqualWeaponDamageModifiedByTheirAttributes() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(10, 10, 1);
-        Armor head = new Armor("Plate helmet", 1, Slot.Head, ArmorType.Plate, armorAttributes);
-        Armor body = new Armor("Breastplate", 1, Slot.Body, ArmorType.Plate, armorAttributes);
-        Armor legs = new Armor("Armored boots", 1, Slot.Legs, ArmorType.Plate, armorAttributes);
-        Weapon weapon = new Weapon("Battle hammer", 1, WeaponType.Hammer, 82);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Mail, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Mail, 1);
+        Armor armor3 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 3, weapon);
 
-        warrior.equip(head);
-        warrior.equip(body);
-        warrior.equip(legs);
-        warrior.equip(weapon);
-        double damage = warrior.damage();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        hero.equip(armor3);
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        assertEquals(110.7, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withReplacedWeapon_shouldBeCalculatedWithNewWeapon() throws InvalidWeaponException {
-        Weapon oldWeapon = new Weapon("Poor sword", 1, WeaponType.Sword, 1);
-        Weapon newWeapon = new Weapon("Magnificent sword", 1, WeaponType.Sword, 173);
+        Weapon oldWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        Weapon newWeapon = new Weapon("Replacement", 1, WeaponType.Axe, 9001);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, newWeapon);
 
-        warrior.equip(oldWeapon);
-        warrior.equip(newWeapon);
-        double damage = warrior.damage();
+        hero.equip(oldWeapon);
+        hero.equip(newWeapon);
+        double damage = hero.damage();
 
-        assertEquals(181.65, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void display_atBeginning_shouldDisplayName() {
-        String display = warrior.display();
-        String name = warrior.getName();
+        String display = hero.display();
+        String name = hero.getName();
 
         boolean hasDisplayName = display.contains("Name: " + name);
 
@@ -345,7 +366,7 @@ class WarriorTest {
 
     @Test
     void display_atBeginning_shouldDisplayClass() {
-        String display = warrior.display();
+        String display = hero.display();
 
         boolean hasClassName = display.contains("Class: Warrior");
 
@@ -354,7 +375,7 @@ class WarriorTest {
 
     @Test
     void display_atBeginning_warriorShouldNotDisplayOtherClasses() {
-        String display = warrior.display();
+        String display = hero.display();
 
         boolean isMage = display.contains("Mage");
         boolean isRogue = display.contains("Rogue");
@@ -365,7 +386,7 @@ class WarriorTest {
 
     @Test
     void display_atBeginning_shouldDisplayLevelOne() {
-        String display = warrior.display();
+        String display = hero.display();
 
         boolean hasLevel = display.contains("Level: 1");
 
@@ -374,8 +395,8 @@ class WarriorTest {
 
     @Test
     void display_atBeginning_shouldDisplayBaseLevelAttributes() {
-        String display = warrior.display();
-        HeroAttribute baseAttributes = warrior.getLevelAttributes();
+        String display = hero.display();
+        HeroAttribute baseAttributes = helper.getHeroBaseAttributes(hero);
 
         boolean hasStrength = display.contains("Strength: " + baseAttributes.getStrength());
         boolean hasDexterity = display.contains("Dexterity: " + baseAttributes.getDexterity());
@@ -386,8 +407,8 @@ class WarriorTest {
 
     @Test
     void display_atBeginning_shouldDisplayBaseDamage() {
-        String display = warrior.display();
-        double damage = warrior.damage();
+        String display = hero.display();
+        double damage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, null);
 
         boolean hasDamage = display.contains("Damage: " + damage);
 
@@ -397,8 +418,8 @@ class WarriorTest {
     @Test
     void display_whenLevelingUp_shouldDisplayUpdatedLevel() {
         int levels = 11;
-        IntStream.range(0, levels).forEach((i) -> warrior.levelUp());
-        String display = warrior.display();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        String display = hero.display();
 
         boolean hasLevel = display.contains("Level: " + (levels + 1));
 
@@ -407,16 +428,17 @@ class WarriorTest {
 
     @Test
     void display_withLevelUpsAndWeaponAndArmor_shouldDisplayUpdatedInformation() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(17, 10, 1);
-        warrior.equip(new Armor("Leather hat", 1, Slot.Head, ArmorType.Plate, armorAttributes));
-        warrior.equip(new Armor("Leather vest", 1, Slot.Body, ArmorType.Plate, armorAttributes));
-        warrior.equip(new Armor("Leather pants", 1, Slot.Legs, ArmorType.Plate, armorAttributes));
-        warrior.equip(new Weapon("Sword", 1, WeaponType.Sword, 61));
-        IntStream.range(0, 10).forEach((i) -> warrior.levelUp());
-        HeroAttribute totalAttributes = warrior.totalAttributes();
-        double damage = warrior.damage();
+        int levels = 10;
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        Weapon weapon = new Weapon("Sword", 1, WeaponType.Sword, 1234);
+        hero.equip(weapon);
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Plate, 1));
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Plate, 1));
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Plate, 1));
+        HeroAttribute totalAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1 + levels, 3);
+        double damage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1 + levels, 3, weapon);
 
-        String display = warrior.display();
+        String display = hero.display();
         boolean hasStrength = display.contains("Strength: " + totalAttributes.getStrength());
         boolean hasDexterity = display.contains("Dexterity: " + totalAttributes.getDexterity());
         boolean hasIntelligence = display.contains("Intelligence: " + totalAttributes.getIntelligence());

@@ -3,6 +3,7 @@ package character;
 import equipment.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import utils.TestHelper;
 
 import java.util.Map;
 import java.util.Objects;
@@ -12,78 +13,81 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class RogueTest {
 
-    private Hero rogue;
+    private Hero hero;
+    private final TestHelper helper = new TestHelper();
 
     @BeforeEach
     void setUp() {
-        rogue = new Rogue("Richard");
+        hero = new Rogue("Richard");
     }
 
     @Test
     void createRogue_validName_shouldReturnSameName() {
-        rogue = new Rogue("Maxwell");
+        hero = new Rogue("Maxwell");
 
-        String name = rogue.getName();
+        String name = hero.getName();
 
         assertEquals("Maxwell", name);
     }
 
     @Test
     void createRogue_atBeginning_shouldStartAtLevelOne() {
-        int startingLevel = rogue.getLevel();
+        int startingLevel = hero.getLevel();
 
         assertEquals(1, startingLevel);
     }
 
     @Test
     void createRogue_atBeginning_shouldHaveCorrectBaseAttributes() {
-        HeroAttribute attributes = rogue.getLevelAttributes();
-        HeroAttribute baseAttributes = new HeroAttribute(2, 6, 1);
+        HeroAttribute attributes = hero.getLevelAttributes();
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
 
-        assertEquals(baseAttributes, attributes);
+        assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void levelUp_byOneLevel_shouldIncreaseLevelByOne() {
-        rogue.levelUp();
+        hero.levelUp();
 
-        int level = rogue.getLevel();
+        int level = hero.getLevel();
 
         assertEquals(2, level);
     }
 
     @Test
     void levelUp_byFourLevelUps_shouldIncreaseLevelByFour() {
-        IntStream.range(0, 4).forEach((i) -> rogue.levelUp());
+        int levels = 4;
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
 
-        int level = rogue.getLevel();
+        int level = hero.getLevel();
 
-        assertEquals(5, level);
+        assertEquals(levels + 1, level);
     }
 
     @Test
     void levelUp_byOneLevelUp_shouldIncreaseLevelAttributesByOne() {
-        HeroAttribute expected = new HeroAttribute(3, 10, 2);
+        HeroAttribute expected = helper.getAttributesAfterLeveling(hero, 1);
 
-        rogue.levelUp();
-        HeroAttribute attributes = rogue.getLevelAttributes();
+        hero.levelUp();
+        HeroAttribute attributes = hero.getLevelAttributes();
 
         assertEquals(expected, attributes);
     }
 
     @Test
     void levelUp_byFourLevelUps_shouldIncreaseLevelAttributesFourTimes() {
-        HeroAttribute expected = new HeroAttribute(6, 22, 5);
+        int levels = 4;
+        HeroAttribute expected = helper.getAttributesAfterLeveling(hero, levels);
 
-        IntStream.range(0, 4).forEach((i) -> rogue.levelUp());
-        HeroAttribute attributes = rogue.getLevelAttributes();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        HeroAttribute attributes = hero.getLevelAttributes();
 
         assertEquals(expected, attributes);
     }
 
     @Test
     void equipment_atStart_shouldHaveNothingEquipped() {
-        Map<Slot, Item> items = rogue.getEquipment();
+        Map<Slot, Item> items = hero.getEquipment();
 
         boolean hasNoItems = items.values().stream().allMatch(Objects::isNull);
 
@@ -91,265 +95,259 @@ class RogueTest {
     }
 
     @Test
-    void equipWeapon_validDagger_shouldBeAbleToEquip() throws InvalidWeaponException {
-        Weapon dagger = new Weapon("Regular dagger", 1, WeaponType.Dagger, 1);
-        rogue.equip(dagger);
+    void equipWeapon_validTypeDagger_shouldBeAbleToEquip() throws InvalidWeaponException {
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Dagger, 1);
+        hero.equip(weapon);
 
-        Item equippedItem = rogue.getEquipment().get(Slot.Weapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
-        assertEquals(dagger, equippedItem);
+        assertEquals(weapon, equippedItem);
     }
 
     @Test
-    void equipWeapon_validSword_shouldBeAbleToEquip() throws InvalidWeaponException {
-        Weapon dagger = new Weapon("Regular sword", 1, WeaponType.Sword, 2);
-        rogue.equip(dagger);
+    void equipWeapon_validTypeSword_shouldBeAbleToEquip() throws InvalidWeaponException {
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        hero.equip(weapon);
 
-        Item equippedItem = rogue.getEquipment().get(Slot.Weapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
-        assertEquals(dagger, equippedItem);
+        assertEquals(weapon, equippedItem);
     }
 
     @Test
     void equipWeapon_validTypeInvalidLevel_shouldThrowInvalidWeaponException() {
-        Weapon highLvlDagger = new Weapon("Regular dagger", 9, WeaponType.Dagger, 3);
+        Weapon highLvlWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Dagger, 10);
         String errorMessage = "Your level is too low to wield that weapon.";
 
-        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> rogue.equip(highLvlDagger));
+        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> hero.equip(highLvlWeapon));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipment_afterLevelingUp_shouldBeAbleToEquipHigherLevelItem() throws InvalidWeaponException {
-        Weapon highLvlDagger = new Weapon("Regular dagger", 7, WeaponType.Dagger, 6);
-        IntStream.range(0, 10).forEach((i) -> rogue.levelUp());
+        int levels = 5;
+        Weapon highLvlWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Dagger, levels);
+        IntStream.range(0, levels + 1).forEach((i) -> hero.levelUp());
 
-        rogue.equip(highLvlDagger);
-        Item equippedItem = rogue.getEquipment().get(Slot.Weapon);
+        hero.equip(highLvlWeapon);
+        Item equippedItem = hero.getEquipment().get(Slot.Weapon);
 
-        assertEquals(highLvlDagger, equippedItem);
+        assertEquals(highLvlWeapon, equippedItem);
     }
 
     @Test
     void equipWeapon_invalidType_shouldThrowInvalidWeaponException() {
-        Weapon staff = new Weapon("Magic staff", 1, WeaponType.Staff, 2);
-        String errorMessage = "Rogue cannot equip weapon of type " + staff.getType() + ".";
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Staff, 1);
+        String errorMessage = "Rogue cannot equip weapon of type " + weapon.getType() + ".";
 
-        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> rogue.equip(staff));
+        InvalidWeaponException exception = assertThrows(InvalidWeaponException.class, () -> hero.equip(weapon));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipArmor_validLeatherLegs_shouldBeAbleToEquip() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 5, 0);
-        Armor pants = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 1);
 
-        rogue.equip(pants);
-        Item equippedItem = rogue.getEquipment().get(Slot.Legs);
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Legs);
 
-        assertEquals(pants, equippedItem);
+        assertEquals(armor, equippedItem);
     }
 
     @Test
     void equipArmor_validMailBody_shouldBeAbleToEquip() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(3, 3, 1);
-        Armor vest = new Armor("Mail vest", 1, Slot.Body, ArmorType.Mail, armorAttributes);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Mail, 1);
 
-        rogue.equip(vest);
-        Item equippedItem = rogue.getEquipment().get(Slot.Body);
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Body);
 
-        assertEquals(vest, equippedItem);
+        assertEquals(armor, equippedItem);
     }
 
     @Test
     void equipArmor_validLeatherHead_shouldBeAbleToEquip() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(3, 3, 1);
-        Armor hat = new Armor("Fancy leather hat", 1, Slot.Head, ArmorType.Leather, armorAttributes);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Leather, 1);
 
-        rogue.equip(hat);
-        Item equippedItem = rogue.getEquipment().get(Slot.Head);
+        hero.equip(armor);
+        Item equippedItem = hero.getEquipment().get(Slot.Head);
 
-        assertEquals(hat, equippedItem);
+        assertEquals(armor, equippedItem);
     }
 
     @Test
     void equipArmor_invalidLevelValidType_shouldThrowInvalidArmorException() {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 1, 1);
-        Armor pants = new Armor("Leather pants", 5, Slot.Legs, ArmorType.Mail, armorAttributes);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 5);
         String errorMessage = "Your level is too low to equip that armor.";
 
-        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> rogue.equip(pants));
+        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> hero.equip(armor));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipArmor_invalidTypeValidLevel_shouldThrowInvalidArmorException() {
-        HeroAttribute armorAttributes = new HeroAttribute(10, 2, 0);
-        Armor helmet = new Armor("Plate helmet", 1, Slot.Head, ArmorType.Plate, armorAttributes);
-        String errorMessage = "Rogue cannot equip armor type of " + helmet.getType() + ".";
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Plate, 1);
+        String errorMessage = "Rogue cannot equip armor type of " + armor.getType() + ".";
 
-        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> rogue.equip(helmet));
+        InvalidArmorException exception = assertThrows(InvalidArmorException.class, () -> hero.equip(armor));
 
         assertEquals(errorMessage, exception.getMessage());
     }
 
     @Test
     void equipArmor_toSameSlot_shouldReplaceOldArmor() throws InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(1, 1, 1);
-        Armor old = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
-        Armor replacement = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes);
+        Armor old = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor replacement = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 1);
 
-        rogue.equip(old);
-        rogue.equip(replacement);
-        Item equippedItem = rogue.getEquipment().get(Slot.Legs);
+        hero.equip(old);
+        hero.equip(replacement);
+        Item equippedItem = hero.getEquipment().get(Slot.Legs);
 
         assertEquals(replacement, equippedItem);
     }
 
     @Test
     void totalAttributes_atBeginning_shouldEqualBaseAttributes() {
-        HeroAttribute expectedAttributes = new HeroAttribute(2, 6, 1);
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
 
-        HeroAttribute attributes = rogue.totalAttributes();
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_afterLevelingUpFiveTimes_shouldEqualTheirSum() {
-        HeroAttribute expectedAttributes = new HeroAttribute(7, 26, 6);
+        int levels = 5;
+        HeroAttribute expectedAttributes = helper.getAttributesAfterLeveling(hero, 5);
 
-        IntStream.range(0, 5).forEach((i) -> rogue.levelUp());
-        HeroAttribute attributes = rogue.totalAttributes();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withOneArmorEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(12, 8, 4);
-        HeroAttribute armorAttributes = new HeroAttribute(10, 2, 3);
-        Armor pants = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 1);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
 
-        rogue.equip(pants);
-        HeroAttribute attributes = rogue.totalAttributes();
+        hero.equip(armor);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withTwoArmorEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(22, 10, 7);
-        HeroAttribute armorAttributes = new HeroAttribute(10, 2, 3);
-        Armor pants = new Armor("Mail pants", 1, Slot.Legs, ArmorType.Mail, armorAttributes);
-        Armor vest = new Armor("Leather vest", 1, Slot.Body, ArmorType.Leather, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 2);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Leather, 1);
 
-        rogue.equip(pants);
-        rogue.equip(vest);
-        HeroAttribute attributes = rogue.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withAllSlotsEquipped_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(11, 9, 22);
-        HeroAttribute armorAttributes = new HeroAttribute(3, 1, 7);
-        Armor hat = new Armor("Leather hat", 1, Slot.Head, ArmorType.Leather, armorAttributes);
-        Armor vest = new Armor("Leather vest", 1, Slot.Body, ArmorType.Leather, armorAttributes);
-        Armor pants = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes);
+        HeroAttribute expectedAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1, 3);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Leather, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Mail, 1);
+        Armor armor3 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Leather, 1);
 
-        rogue.equip(hat);
-        rogue.equip(vest);
-        rogue.equip(pants);
-        HeroAttribute attributes = rogue.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        hero.equip(armor3);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void totalAttributes_withReplacedArmor_shouldEqualSumOfTheirAttributes() throws InvalidArmorException {
-        HeroAttribute expectedAttributes = new HeroAttribute(22, 14, 1);
-        HeroAttribute armorAttributes = new HeroAttribute(3, 1, 7);
-        HeroAttribute newArmorAttributes = new HeroAttribute(20, 8, 0);
+        HeroAttribute newArmorAttributes = new HeroAttribute(11, 22, 33);
+        HeroAttribute expectedAttributes = helper.getHeroBaseAttributes(hero);
+        expectedAttributes.addAttributes(newArmorAttributes);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Leather, 1);
+        Armor armor2 = new Armor("Replacement", 1, Slot.Body, ArmorType.Leather, newArmorAttributes);
 
-        Armor vest = new Armor("Leather vest", 1, Slot.Body, ArmorType.Leather, armorAttributes);
-        Armor newVest = new Armor("Much fancier vest", 1, Slot.Body, ArmorType.Leather, newArmorAttributes);
-
-        rogue.equip(vest);
-        rogue.equip(newVest);
-        HeroAttribute attributes = rogue.totalAttributes();
+        hero.equip(armor1);
+        hero.equip(armor2);
+        HeroAttribute attributes = hero.totalAttributes();
 
         assertEquals(expectedAttributes, attributes);
     }
 
     @Test
     void damage_withoutWeaponOrArmor_shouldEqualBaseDamageModifiedByBaseAttributes() {
-        double damage = rogue.damage();
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, null);
+        double damage = hero.damage();
 
-        assertEquals(1.06, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeapon_shouldEqualWeaponDamageModifiedByBaseAttributes() throws InvalidWeaponException {
-        Weapon weapon = new Weapon("Pointy thing", 1, WeaponType.Dagger, 15);
-        rogue.equip(weapon);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Dagger, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, weapon);
 
-        double damage = rogue.damage();
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        assertEquals(15.9, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeaponAndArmor_shouldEqualWeaponDamageModifiedByTheirAttributes() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(7, 22, 0);
-        Armor pants = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes);
-        Weapon weapon = new Weapon("Pointier thing", 1, WeaponType.Dagger, 27);
+        Armor armor = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 1);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Dagger, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 1, weapon);
 
-        rogue.equip(pants);
-        rogue.equip(weapon);
-        double damage = rogue.damage();
+        hero.equip(armor);
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        assertEquals(34.56, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withWeaponAndAllArmor_shouldEqualWeaponDamageModifiedByTheirAttributes() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(7, 11, 1);
-        Armor hat = new Armor("Leather hat", 1, Slot.Head, ArmorType.Leather, armorAttributes);
-        Armor vest = new Armor("Leather vest", 1, Slot.Body, ArmorType.Leather, armorAttributes);
-        Armor pants = new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes);
-        Weapon weapon = new Weapon("Pointiest thing", 1, WeaponType.Sword, 44);
+        Armor armor1 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Leather, 1);
+        Armor armor2 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Leather, 1);
+        Armor armor3 = helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 1);
+        Weapon weapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 3, weapon);
 
+        hero.equip(armor1);
+        hero.equip(armor2);
+        hero.equip(armor3);
+        hero.equip(weapon);
+        double damage = hero.damage();
 
-        rogue.equip(hat);
-        rogue.equip(vest);
-        rogue.equip(pants);
-        rogue.equip(weapon);
-        double damage = rogue.damage();
-
-        assertEquals(61.16, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void damage_withReplacedWeapon_shouldBeCalculatedWithNewWeapon() throws InvalidWeaponException {
-        Weapon oldWeapon = new Weapon("Poor sword", 1, WeaponType.Sword, 1);
-        Weapon newWeapon = new Weapon("Magnificent dagger", 1, WeaponType.Dagger, 173);
+        Weapon oldWeapon = helper.getWeaponOfTypeAndLevel(WeaponType.Sword, 1);
+        Weapon newWeapon = new Weapon("Replacement", 1, WeaponType.Dagger, 9001);
+        double expectedDamage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, newWeapon);
 
-        rogue.equip(oldWeapon);
-        rogue.equip(newWeapon);
-        double damage = rogue.damage();
+        hero.equip(oldWeapon);
+        hero.equip(newWeapon);
+        double damage = hero.damage();
 
-        assertEquals(183.38, damage, 1e-3);
+        assertEquals(expectedDamage, damage, 1e-3);
     }
 
     @Test
     void display_atBeginning_shouldDisplayName() {
-        String display = rogue.display();
-        String name = rogue.getName();
+        String display = hero.display();
+        String name = hero.getName();
 
         boolean hasDisplayName = display.contains("Name: " + name);
 
@@ -358,7 +356,7 @@ class RogueTest {
 
     @Test
     void display_atBeginning_shouldDisplayClass() {
-        String display = rogue.display();
+        String display = hero.display();
 
         boolean hasClassName = display.contains("Class: Rogue");
 
@@ -367,18 +365,18 @@ class RogueTest {
 
     @Test
     void display_atBeginning_rogueShouldNotDisplayOtherClasses() {
-        String display = rogue.display();
+        String display = hero.display();
 
         boolean isMage = display.contains("Mage");
         boolean isWarrior = display.contains("Warrior");
         boolean isRanger = display.contains("Ranger");
 
-        assertFalse(isMage && isWarrior && isRanger);
+        assertFalse(isMage || isWarrior || isRanger);
     }
 
     @Test
     void display_atBeginning_shouldDisplayLevelOne() {
-        String display = rogue.display();
+        String display = hero.display();
 
         boolean hasLevel = display.contains("Level: 1");
 
@@ -387,8 +385,8 @@ class RogueTest {
 
     @Test
     void display_atBeginning_shouldDisplayBaseLevelAttributes() {
-        String display = rogue.display();
-        HeroAttribute baseAttributes = rogue.getLevelAttributes();
+        String display = hero.display();
+        HeroAttribute baseAttributes = helper.getHeroBaseAttributes(hero);
 
         boolean hasStrength = display.contains("Strength: " + baseAttributes.getStrength());
         boolean hasDexterity = display.contains("Dexterity: " + baseAttributes.getDexterity());
@@ -399,8 +397,8 @@ class RogueTest {
 
     @Test
     void display_atBeginning_shouldDisplayBaseDamage() {
-        String display = rogue.display();
-        double damage = rogue.damage();
+        String display = hero.display();
+        double damage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1, 0, null);
 
         boolean hasDamage = display.contains("Damage: " + damage);
 
@@ -410,8 +408,8 @@ class RogueTest {
     @Test
     void display_whenLevelingUp_shouldDisplayUpdatedLevel() {
         int levels = 11;
-        IntStream.range(0, levels).forEach((i) -> rogue.levelUp());
-        String display = rogue.display();
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        String display = hero.display();
 
         boolean hasLevel = display.contains("Level: " + (levels + 1));
 
@@ -420,16 +418,17 @@ class RogueTest {
 
     @Test
     void display_withLevelUpsAndWeaponAndArmor_shouldDisplayUpdatedInformation() throws InvalidWeaponException, InvalidArmorException {
-        HeroAttribute armorAttributes = new HeroAttribute(7, 16, 1);
-        rogue.equip(new Armor("Leather hat", 1, Slot.Head, ArmorType.Leather, armorAttributes));
-        rogue.equip(new Armor("Leather vest", 1, Slot.Body, ArmorType.Leather, armorAttributes));
-        rogue.equip(new Armor("Leather pants", 1, Slot.Legs, ArmorType.Leather, armorAttributes));
-        rogue.equip(new Weapon("Sword", 1, WeaponType.Sword, 61));
-        IntStream.range(0, 10).forEach((i) -> rogue.levelUp());
-        HeroAttribute totalAttributes = rogue.totalAttributes();
-        double damage = rogue.damage();
+        int levels = 10;
+        IntStream.range(0, levels).forEach((i) -> hero.levelUp());
+        Weapon weapon = new Weapon("Sword", 1, WeaponType.Sword, 1234);
+        hero.equip(weapon);
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Head, ArmorType.Leather, 1));
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Body, ArmorType.Leather, 1));
+        hero.equip(helper.getArmorOfSlotAndTypeAndLevel(Slot.Legs, ArmorType.Leather, 1));
+        HeroAttribute totalAttributes = helper.getAttributesWithLevelAndNumberOfArmorsEquipped(hero, 1 + levels, 3);
+        double damage = helper.getHeroDamageByLevelAndArmorsAndWeapon(hero, 1 + levels, 3, weapon);
 
-        String display = rogue.display();
+        String display = hero.display();
         boolean hasStrength = display.contains("Strength: " + totalAttributes.getStrength());
         boolean hasDexterity = display.contains("Dexterity: " + totalAttributes.getDexterity());
         boolean hasIntelligence = display.contains("Intelligence: " + totalAttributes.getIntelligence());
