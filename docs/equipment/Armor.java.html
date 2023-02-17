@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Armor.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ea-rpg-heroes</a> &gt; <a href="index.source.html" class="el_package">equipment</a> &gt; <span class="el_source">Armor.java</span></div><h1>Armor.java</h1><pre class="source lang-java linenums">package equipment;
+
+import character.HeroAttribute;
+
+/**
+ * Represent Armor object that Hero can wield and
+ * gain additional attributes provided by armor pieces.
+ */
+public class Armor extends Item {
+
+    private ArmorType type;
+    private HeroAttribute armorAttributes;
+
+    /**
+     * Creates Armor object with given name, required level, slot, type and attributes
+     *
+     * @param name            name of the armor
+     * @param requiredLevel   minimum level required to equip armor
+     * @param slot            slot of the armor that it will use
+     * @param type            type of the armor
+     * @param armorAttributes attributes that the armor will grant to the wearer
+     */
+    public Armor(String name, int requiredLevel, Slot slot, ArmorType type, HeroAttribute armorAttributes) {
+<span class="fc" id="L24">        super(name, requiredLevel, slot);</span>
+<span class="fc" id="L25">        this.type = type;</span>
+<span class="fc" id="L26">        this.armorAttributes = armorAttributes;</span>
+<span class="fc" id="L27">    }</span>
+
+    /**
+     * Returns type of the armor as ArmorType enum.
+     *
+     * @return type of armor
+     * @see ArmorType
+     */
+    public ArmorType getType() {
+<span class="fc" id="L36">        return type;</span>
+    }
+
+    /**
+     * Returns attributes that the armor has as HeroAttribute object.
+     *
+     * @return attributes attached to armor
+     * @see HeroAttribute
+     */
+    public HeroAttribute getArmorAttributes() {
+<span class="fc" id="L46">        return armorAttributes;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

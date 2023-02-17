@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Ranger.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ea-rpg-heroes</a> &gt; <a href="index.source.html" class="el_package">character</a> &gt; <span class="el_source">Ranger.java</span></div><h1>Ranger.java</h1><pre class="source lang-java linenums">package character;
+
+import equipment.ArmorType;
+import equipment.Slot;
+import equipment.Weapon;
+import equipment.WeaponType;
+
+import java.util.Arrays;
+import java.util.List;
+
+/**
+ * Represents Ranger class. Subclass of Hero.
+ */
+public class Ranger extends Hero {
+
+    /**
+     * Creates Ranger with given name. Ranger has distinct attribute composition that emphasizes Dexterity.
+     * Ranger may use weapons of type Bow and equip armors of type Leather and Mail.
+     *
+     * @param name name of ranger
+     */
+    public Ranger(String name) {
+<span class="fc" id="L23">        super(name);</span>
+
+<span class="fc" id="L25">        HeroAttribute baseAttributes = new HeroAttribute(1, 7, 1);</span>
+<span class="fc" id="L26">        HeroAttribute levelUpAttributes = new HeroAttribute(1, 5, 1);</span>
+
+<span class="fc" id="L28">        List&lt;WeaponType&gt; validWeapons = Arrays.asList(WeaponType.Bow);</span>
+<span class="fc" id="L29">        List&lt;ArmorType&gt; validArmors = Arrays.asList(ArmorType.Leather, ArmorType.Mail);</span>
+
+<span class="fc" id="L31">        this.setLevelAttributes(baseAttributes);</span>
+<span class="fc" id="L32">        this.setLevelUpAttributes(levelUpAttributes);</span>
+<span class="fc" id="L33">        this.setValidWeaponTypes(validWeapons);</span>
+<span class="fc" id="L34">        this.setValidArmorTypes(validArmors);</span>
+<span class="fc" id="L35">    }</span>
+
+    /**
+     * Represents damage that the ranger will deal. Damage is modified by equipped weapon and
+     * attributes that armor provides. Dexterity attribute is used to calculate damage modifier.
+     *
+     * @return damage value
+     */
+    public double damage() {
+<span class="fc" id="L44">        Weapon equippedWeapon = (Weapon) this.getEquipment().get(Slot.Weapon);</span>
+<span class="fc bfc" id="L45" title="All 2 branches covered.">        int baseDamage = equippedWeapon != null ? equippedWeapon.getWeaponDamage() : 1;</span>
+
+<span class="fc" id="L47">        double modifier = 1 + (this.totalAttributes().getDexterity() / 100d);</span>
+
+<span class="fc" id="L49">        return baseDamage * modifier;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

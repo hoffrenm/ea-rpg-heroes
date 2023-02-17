@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>HeroAttribute.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ea-rpg-heroes</a> &gt; <a href="index.source.html" class="el_package">character</a> &gt; <span class="el_source">HeroAttribute.java</span></div><h1>HeroAttribute.java</h1><pre class="source lang-java linenums">package character;
+
+import java.util.Objects;
+
+/**
+ * Represents attribute object that heroes and armors have.
+ * Consists of three attributes: Strength, Dexterity and Intelligence.
+ */
+public class HeroAttribute {
+    private int strength;
+    private int dexterity;
+    private int intelligence;
+
+    /**
+     * Creates HeroAttribute object with given strength, dexterity and intelligence values.
+     *
+     * @param strength     value of strength
+     * @param dexterity    value of dexterity
+     * @param intelligence value of intelligence
+     */
+<span class="fc" id="L21">    public HeroAttribute(int strength, int dexterity, int intelligence) {</span>
+<span class="fc" id="L22">        this.strength = strength;</span>
+<span class="fc" id="L23">        this.dexterity = dexterity;</span>
+<span class="fc" id="L24">        this.intelligence = intelligence;</span>
+<span class="fc" id="L25">    }</span>
+
+    /**
+     * Returns value of strength as integer
+     *
+     * @return value of strength
+     */
+    public int getStrength() {
+<span class="fc" id="L33">        return strength;</span>
+    }
+
+    /**
+     * Returns value of dexterity as integer
+     *
+     * @return value of dexterity
+     */
+    public int getDexterity() {
+<span class="fc" id="L42">        return dexterity;</span>
+    }
+
+    /**
+     * Returns value of intelligence as integer
+     *
+     * @return value of intelligence
+     */
+    public int getIntelligence() {
+<span class="fc" id="L51">        return intelligence;</span>
+    }
+
+    /**
+     * Adds two instances of HeroAttributes togethers. Object that uses this
+     * method will have each of its attributes incremented by amount of that given parameter.
+     * HeroAttribute given as parameter will remain unchanged.
+     *
+     * @param attributes HeroAttribute object that will increase attributes
+     */
+    public void addAttributes(HeroAttribute attributes) {
+<span class="fc" id="L62">        this.strength += attributes.getStrength();</span>
+<span class="fc" id="L63">        this.dexterity += attributes.getDexterity();</span>
+<span class="fc" id="L64">        this.intelligence += attributes.getIntelligence();</span>
+<span class="fc" id="L65">    }</span>
+
+    /**
+     * Checks if both HeroAttributes have equal values for strength, dexterity and intelligence.
+     *
+     * @param o HeroAttribute object
+     * @return true if both HeroAttribute objects have same attribute values
+     */
+    @Override
+    public boolean equals(Object o) {
+<span class="fc bfc" id="L75" title="All 2 branches covered.">        if (this == o) return true;</span>
+<span class="pc bpc" id="L76" title="2 of 4 branches missed.">        if (o == null || getClass() != o.getClass()) return false;</span>
+<span class="fc" id="L77">        HeroAttribute that = (HeroAttribute) o;</span>
+<span class="fc bfc" id="L78" title="All 6 branches covered.">        return strength == that.strength &amp;&amp; dexterity == that.dexterity &amp;&amp; intelligence == that.intelligence;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

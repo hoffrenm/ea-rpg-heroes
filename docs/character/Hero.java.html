@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>Hero.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">ea-rpg-heroes</a> &gt; <a href="index.source.html" class="el_package">character</a> &gt; <span class="el_source">Hero.java</span></div><h1>Hero.java</h1><pre class="source lang-java linenums">package character;
+
+import equipment.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+/**
+ * Abstract base class that represents Hero. Contains shared fields for subclasses as well as shared methods.
+ * Hero has name, level, attributes, equipment and lists of valid weapons and armors provided by subclasses.
+ */
+abstract public class Hero {
+
+    private final String name;
+    private int level;
+    private HeroAttribute levelAttributes;
+    private HeroAttribute levelUpAttributes;
+    private Map&lt;Slot, Item&gt; equipment;
+    private List&lt;WeaponType&gt; validWeaponTypes;
+    private List&lt;ArmorType&gt; validArmorTypes;
+
+    /**
+     * Creates Hero with given name to level 1. Initializes equipment slots with null values.
+     * Can only be called by subclass.
+     *
+     * @param name name of hero
+     */
+<span class="fc" id="L29">    protected Hero(String name) {</span>
+<span class="fc" id="L30">        this.name = name;</span>
+<span class="fc" id="L31">        this.level = 1;</span>
+<span class="fc" id="L32">        this.equipment = new HashMap&lt;&gt;();</span>
+
+<span class="fc bfc" id="L34" title="All 2 branches covered.">        for (Slot slot : Slot.values()) {</span>
+<span class="fc" id="L35">            this.equipment.put(slot, null);</span>
+        }
+<span class="fc" id="L37">    }</span>
+
+    /**
+     * Returns name of the Hero.
+     *
+     * @return name of hero
+     */
+    public String getName() {
+<span class="fc" id="L45">        return name;</span>
+    }
+
+    /**
+     * Returns level of the hero as integer.
+     *
+     * @return level of hero
+     */
+    public int getLevel() {
+<span class="fc" id="L54">        return level;</span>
+    }
+
+    /**
+     * Used to set hero's level attributes from subclass.
+     *
+     * @param levelAttributes attributes hero has at beginning
+     */
+    protected void setLevelAttributes(HeroAttribute levelAttributes) {
+<span class="fc" id="L63">        this.levelAttributes = levelAttributes;</span>
+<span class="fc" id="L64">    }</span>
+
+    /**
+     * Returns hero's current level attributes that may have increased by leveling.
+     *
+     * @return level attributes of hero
+     */
+    public HeroAttribute getLevelAttributes() {
+<span class="fc" id="L72">        return levelAttributes;</span>
+    }
+
+    /**
+     * Used to set hero's attributes for leveling from subclass.
+     * Leveling a hero causes level attributes to be increased by these.
+     *
+     * @param levelUpAttributes attributes hero gains at level up
+     */
+    protected void setLevelUpAttributes(HeroAttribute levelUpAttributes) {
+<span class="fc" id="L82">        this.levelUpAttributes = levelUpAttributes;</span>
+<span class="fc" id="L83">    }</span>
+
+    /**
+     * Returns equipment that hero currently has. Represented as Map with Slot as a key.
+     *
+     * @return hero's equipment
+     */
+    public Map&lt;Slot, Item&gt; getEquipment() {
+<span class="fc" id="L91">        return equipment;</span>
+    }
+
+    /**
+     * Sets valid weapon types allowed for hero.
+     *
+     * @param validWeaponTypes list of allowed weapon types
+     */
+    protected void setValidWeaponTypes(List&lt;WeaponType&gt; validWeaponTypes) {
+<span class="fc" id="L100">        this.validWeaponTypes = validWeaponTypes;</span>
+<span class="fc" id="L101">    }</span>
+
+    /**
+     * Sets valid armor types allowed for hero.
+     *
+     * @param validArmorTypes list of allowed armor types
+     */
+    protected void setValidArmorTypes(List&lt;ArmorType&gt; validArmorTypes) {
+<span class="fc" id="L109">        this.validArmorTypes = validArmorTypes;</span>
+<span class="fc" id="L110">    }</span>
+
+    /**
+     * Levels up a hero. Causes level to increase by 1 and level attributes increase by amount of
+     * declared by levelUpAttributes.
+     */
+    public void levelUp() {
+<span class="fc" id="L117">        this.level += 1;</span>
+<span class="fc" id="L118">        this.levelAttributes.addAttributes(this.levelUpAttributes);</span>
+<span class="fc" id="L119">    }</span>
+
+    /**
+     * Equips weapon for a hero. Throws exception if weapon is wrong type or too high level to be equipped.
+     * Previously equipped weapon will be discarded.
+     *
+     * @param weapon weapon that hero attempts to equip
+     * @throws InvalidWeaponException invalid weapon type or required level too high
+     */
+    public void equip(Weapon weapon) throws InvalidWeaponException {
+<span class="fc bfc" id="L129" title="All 2 branches covered.">        if (!this.validWeaponTypes.contains(weapon.getType())) {</span>
+<span class="fc" id="L130">            throw new InvalidWeaponException(this.getClass().getSimpleName() + &quot; cannot equip weapon of type &quot; + weapon.getType() + &quot;.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L133" title="All 2 branches covered.">        if (weapon.getRequiredLevel() &gt; this.level) {</span>
+<span class="fc" id="L134">            throw new InvalidWeaponException(&quot;Your level is too low to wield that weapon.&quot;);</span>
+        }
+
+<span class="fc" id="L137">        this.equipment.put(Slot.Weapon, weapon);</span>
+<span class="fc" id="L138">    }</span>
+
+    /**
+     * Equips armor for a hero. Throws exception if armor is wrong type or too high level to be equipped.
+     * Previously equipped armor on same slot will be discarded.
+     *
+     * @param armor armor that hero attempts to equip
+     * @throws InvalidArmorException invalid armor type or required level too high
+     */
+    public void equip(Armor armor) throws InvalidArmorException {
+<span class="fc bfc" id="L148" title="All 2 branches covered.">        if (!this.validArmorTypes.contains(armor.getType())) {</span>
+<span class="fc" id="L149">            throw new InvalidArmorException(this.getClass().getSimpleName() + &quot; cannot equip armor type of &quot; + armor.getType() + &quot;.&quot;);</span>
+        }
+
+<span class="fc bfc" id="L152" title="All 2 branches covered.">        if (armor.getRequiredLevel() &gt; this.level) {</span>
+<span class="fc" id="L153">            throw new InvalidArmorException(&quot;Your level is too low to equip that armor.&quot;);</span>
+        }
+
+<span class="fc" id="L156">        this.equipment.put(armor.getSlot(), armor);</span>
+<span class="fc" id="L157">    }</span>
+
+    /**
+     * Calculates sum of total attributes from hero's level attributes and those provided by armor pieces.
+     * Returns total as new HeroAttribute.
+     *
+     * @return sum of attributes from hero and armors
+     */
+    public HeroAttribute totalAttributes() {
+<span class="fc" id="L166">        HeroAttribute totalAttributes = new HeroAttribute(0, 0, 0);</span>
+<span class="fc" id="L167">        totalAttributes.addAttributes(this.levelAttributes);</span>
+
+<span class="fc bfc" id="L169" title="All 2 branches covered.">        for (Item item : this.equipment.values()) {</span>
+<span class="fc bfc" id="L170" title="All 2 branches covered.">            if (item instanceof Armor) {</span>
+<span class="fc" id="L171">                totalAttributes.addAttributes(((Armor) item).getArmorAttributes());</span>
+            }
+<span class="fc" id="L173">        }</span>
+
+<span class="fc" id="L175">        return totalAttributes;</span>
+    }
+
+    /**
+     * Abstract damage method that subclasses have to implement.
+     *
+     * @return damage hero does
+     */
+    abstract public double damage();
+
+    /**
+     * String presentation of hero. Displays hero's name, class, level, attributes and damage hero currently does.
+     *
+     * @return hero information
+     */
+    public String display() {
+<span class="fc" id="L191">        StringBuilder sb = new StringBuilder();</span>
+
+<span class="fc" id="L193">        sb.append(&quot;Name: &quot;).append(this.getName()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L194">                .append(&quot;Class: &quot;).append(this.getClass().getSimpleName()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L195">                .append(&quot;Level: &quot;).append(this.getLevel()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L196">                .append(&quot;Strength: &quot;).append(this.totalAttributes().getStrength()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L197">                .append(&quot;Dexterity: &quot;).append(this.totalAttributes().getDexterity()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L198">                .append(&quot;Intelligence: &quot;).append(this.totalAttributes().getIntelligence()).append(&quot;\n&quot;)</span>
+<span class="fc" id="L199">                .append(&quot;Damage: &quot;).append(this.damage());</span>
+
+<span class="fc" id="L201">        return sb.toString();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
