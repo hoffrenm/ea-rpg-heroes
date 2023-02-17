@@ -33,6 +33,6 @@ on root directory with command line you can execute following:
 
 ### Test coverage
 
-![image](https://user-images.githubusercontent.com/46321023/219689469-69ad43b3-cd60-4ad8-a6af-d2ef634b562b.png)
+[![image](https://user-images.githubusercontent.com/46321023/219689469-69ad43b3-cd60-4ad8-a6af-d2ef634b562b.png)](https://hoffrenm.github.io/ea-rpg-heroes/)
 
 [Test coverage report available here](https://hoffrenm.github.io/ea-rpg-heroes/)
